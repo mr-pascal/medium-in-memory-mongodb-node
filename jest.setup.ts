@@ -1,3 +1,4 @@
+// jest.setup.ts
 import {MongoMemoryServer} from 'mongodb-memory-server';
 import {Collection, Db, MongoClient} from 'mongodb';
 import {PERSON_COLLECTION} from './src/constants';
@@ -6,32 +7,70 @@ let mongo: MongoMemoryServer;
 let mongoClient: MongoClient;
 let db: Db;
 
+
+/**
+ * 1.
+ * Initial setup step to be run ONCE BEFORE ALL test cases
+ */
 beforeAll(async () => {
-    // Start in-memory MongoDB
+    /**
+     * 1.1
+     * Start in-memory MongoDB
+     */
     mongo = new MongoMemoryServer({});
 
-    // Set Mongo Host and DB name as process variables, because the application expect it as ENV vars
+    /**
+     * 1.2
+     * Set the MongoDB host and DB name as environment variables,
+     * because the application expect it as ENV vars.
+     * The values are being created by the in-memory MongoDB
+     */
     process.env.MONGO_HOST = await mongo.getUri();
     process.env.MONGO_DB = await mongo.getDbName();
 
-    // Use connect method to connect to the server
+    /**
+     * 1.3
+     * Connect to our in-memory MongoDB, so we can do some initial setup/cleaning
+     */
     mongoClient = await MongoClient.connect(process.env.MONGO_HOST);
     db = mongoClient.db(process.env.MONGO_DB);
 
-    // Create initial collections
+    /**
+     * 1.4
+     * Create our 'persons' collection on the newly created MongoDB
+     */
     await db.createCollection(PERSON_COLLECTION);
 });
 
+/**
+ * 2.
+ * Step to be run before each test case
+ */
 beforeEach(async () => {
-    // Get all collections
+    /**
+     * 2.1
+     * Get all collection in the MongoDB and remove all elements from them.
+     * We do this to have a clean state between each test case so we don't introduce
+     * side effects inside the test cases, affecting other test cases
+     */
     const collections: Array<Collection> = await db.collections();
-    // Clear all collections before each test case
-    await Promise.all(collections.map((collection: Collection) => collection.deleteMany({})));
+    await Promise.all(
+        collections.map(
+            (collection: Collection) => collection.deleteMany({}),
+        ),
+    );
 });
 
+/**
+ * 3.
+ * Final "cleanup" step to be run after all the test cases finished
+ */
 afterAll(async () => {
-    // Close connection
+    /**
+     * 3.1
+     * Close connection to our MongoDB
+     * Stop our in-memory MongoDB
+     */
     await mongoClient.close();
-    // Stop in-memory DB
     await mongo.stop();
 });
