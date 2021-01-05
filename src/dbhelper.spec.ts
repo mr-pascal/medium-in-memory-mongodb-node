@@ -15,8 +15,8 @@ describe(`DBHelper`, () => {
     /**
      * 2.
      * Before running our test cases we create a connection to our in-memory MongoDB.
-     * In Theory we could do it before each test case instead of once before all
-     * but this would just cost unnecessary milliseconds. There is no reason to reconnect each time.
+     * In theory we could do it before each test case instead of once before all
+     * but this would just cost unnecessary resources. There is no reason to reconnect each time.
      */
     beforeAll(async () => {
         // Get MongoDB information from ENV variables
