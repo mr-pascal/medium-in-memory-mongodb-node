@@ -3,9 +3,9 @@ import {DBHelper} from './dbhelper';
 import {IPerson} from './models/person.interface';
 
 /**
- * Start our test file
+ * Start our test file where we test our DBHelper class
  */
-describe(`DB Testing`, () => {
+describe(`DBHelper`, () => {
     /**
      * 1.
      * Initialize a instance of our DBHelper
